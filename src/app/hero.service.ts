@@ -19,9 +19,7 @@ export class HeroService {
   ) { }
 
   getHeroes(): Observable<IHero[]> {
-    this.log('fetched heroes')
-    return this.httpClient
-      .get<IHero[]>(this.baseUrl)
+    return this.httpClient.get<IHero[]>(this.baseUrl)
       .pipe(
         tap(() => this.log('fetched heroes')),
         catchError(this.handleError<IHero[]>('getHeroes', []))
@@ -29,9 +27,13 @@ export class HeroService {
   }
 
   getHero(id: number): Observable<IHero> {
-    const hero = mockHeroes.find((hero) => hero.id === id)!
-    this.log(`fetched hero id=${id}`)
-    return of(hero)
+    const url = `${this.baseUrl}/${id}`
+
+    return this.httpClient.get<IHero>(url)
+      .pipe(
+        tap(() => this.log(`fetched hero id=${id}`)),
+        catchError(this.handleError<IHero>(`getHero id=${id}`))
+      )
   }
 
   private log(message: string) {
