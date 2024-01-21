@@ -54,14 +54,26 @@ export class HeroService {
     );
   }
 
-deleteHero(id: number): Observable<IHero> {
-  const url = `${this.baseUrl}/${id}`;
+  deleteHero(id: number): Observable<IHero> {
+    const url = `${this.baseUrl}/${id}`;
 
-  return this.httpClient.delete<IHero>(url, this.httpOptions).pipe(
-    tap(_ => this.log(`deleted hero id=${id}`)),
-    catchError(this.handleError<IHero>('deleteHero'))
-  );
-}
+    return this.httpClient.delete<IHero>(url, this.httpOptions).pipe(
+      tap(_ => this.log(`deleted hero id=${id}`)),
+      catchError(this.handleError<IHero>('deleteHero'))
+    );
+  }
+
+  searchHeroes(term: string): Observable<IHero[]> {
+    if (!term.trim()) {
+      return of([]);
+    }
+    return this.httpClient.get<IHero[]>(`${this.baseUrl}/?name=${term}`).pipe(
+      tap(heroes => heroes.length ?
+        this.log(`found heroes matching "${term}"`) :
+        this.log(`no heroes matching "${term}"`)),
+      catchError(this.handleError<IHero[]>('searchHeroes', []))
+    );
+  }
 
   private log(message: string) {
     this.messageService.add(`HeroService: ${message}`)
